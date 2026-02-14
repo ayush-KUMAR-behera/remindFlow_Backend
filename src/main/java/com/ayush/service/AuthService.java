@@ -21,6 +21,11 @@ public class AuthService {
 	
 
     public void register(RegisterRequest request) {
+    	
+    	if (userRepository.existsByEmail(request.getEmail())) {
+            throw new RuntimeException("Email already registered");
+        }
+    	
         User user = new User();
         user.setName(request.getName());
         user.setEmail(request.getEmail());
@@ -33,7 +38,7 @@ public class AuthService {
     public AuthResponse login(LoginRequest request) {
 
         User user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow();
+                .orElseThrow(()->new RuntimeException("User not found"));
 
         if(!passwordEncoder.matches(
                 request.getPassword(),
