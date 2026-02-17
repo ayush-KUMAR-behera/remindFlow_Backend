@@ -7,6 +7,8 @@ import com.ayush.dto.AuthResponse;
 import com.ayush.dto.LoginRequest;
 import com.ayush.dto.RegisterRequest;
 import com.ayush.entity.User;
+import com.ayush.exception.BadRequestException;
+import com.ayush.exception.ResourceNotFoundException;
 import com.ayush.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -38,12 +40,12 @@ public class AuthService {
     public AuthResponse login(LoginRequest request) {
 
         User user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow(()->new RuntimeException("User not found"));
+                .orElseThrow(()->new ResourceNotFoundException("User not found"));
 
         if(!passwordEncoder.matches(
                 request.getPassword(),
                 user.getPassword())) {
-            throw new RuntimeException("Invalid credentials");
+            throw new BadRequestException("Invalid credentials");
         }
 
         String token = jwtService.generateToken(user.getEmail());
