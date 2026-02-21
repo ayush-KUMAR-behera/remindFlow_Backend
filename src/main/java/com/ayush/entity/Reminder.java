@@ -36,6 +36,10 @@ public class Reminder {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
+    @Column(nullable = false)
+    private boolean active;
+
+    
     @Column(updatable = false)
     private LocalDateTime createdAt;
 
@@ -43,8 +47,9 @@ public class Reminder {
 
     @PrePersist
     public void prePersist() {
-        createdAt = LocalDateTime.now();
-        updatedAt = LocalDateTime.now();
+    	this.active=true;
+        this.createdAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();
     }
 
     @PreUpdate

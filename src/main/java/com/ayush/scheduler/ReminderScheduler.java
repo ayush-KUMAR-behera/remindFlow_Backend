@@ -23,28 +23,26 @@ public class ReminderScheduler {
 	
 	@Transactional
 	 @Scheduled(fixedRate = 60000) 
-	    public void processReminders() {
+	public void processReminders() {
 
-	        List<Reminder> reminders =
-	                reminderRepository.findAll()
-	                        .stream()
-	                        .filter(r ->
-	                                r.getReminderTime()
-	                                 .isBefore(LocalDateTime.now())
-	                                && r.getStatus()
-	                                == ReminderStatus.PENDING)
-	                        .toList();
+	    List<Reminder> reminders =
+	            reminderRepository.findPendingReminders(
+	                    ReminderStatus.PENDING,
+	                    LocalDateTime.now());
 
-	        for (Reminder reminder : reminders) {
+	    for (Reminder reminder : reminders) {
+	    	
+	    	String cleanEmail=reminder.getUser().getEmail().trim();
+	    	
+	    	System.out.println("Sending email to: ["+cleanEmail+"]");
 
-	            emailService.sendReminderEmail(
-	                    reminder.getUser().getEmail(),
-	                    reminder.getTitle(),
-	                    reminder.getDescription());
+	        emailService.sendReminderEmail(
+	                reminder.getUser().getEmail(),
+	                reminder.getTitle(),
+	                reminder.getDescription());
 
-	            reminder.setStatus(ReminderStatus.COMPLETED);
-	            reminderRepository.save(reminder);
-	        }
+	        reminder.setStatus(ReminderStatus.COMPLETED);
 	    }
+	}
 
 }
